@@ -1,0 +1,12 @@
+{
+  "name": "faizayserverside",
+  "version": "1.0.1",
+  "main": "inedx.js",
+  "license": "MIT",
+  "description": "this is portfolio webistit",
+  "author": "swapnilahmedshishir",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}

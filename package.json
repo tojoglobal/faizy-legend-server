@@ -2,11 +2,40 @@
   "name": "faizayserverside",
   "version": "1.0.1",
   "main": "inedx.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
   "license": "MIT",
   "description": "this is portfolio webistit",
   "author": "swapnilahmedshishir",
+  "keywords": [
+    "portfolio",
+    "Sokkia",
+    "Topcon",
+    "Hi-Target",
+    "fashion",
+    "modeling",
+    "Auto Level",
+    "Theodolite"
+  ],
   "dependencies": {
+    "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "events": "^3.3.0",
     "express": "^5.1.0",
-    "nodemon": "^3.1.10"
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.0",
+    "mysql2": "^3.14.1",
+    "nodemon": "^3.1.10",
+    "path": "^0.12.7",
+    "uuid": "^11.1.0"
   }
 }

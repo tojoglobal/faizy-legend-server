@@ -8,6 +8,7 @@ import adminRoute from "./routes/adminRoute.js";
 import filmingRoute from "./routes/filmingRoute.js";
 import shoppingRoute from "./routes/shoppingRoute.js";
 import bookRouter from "./routes/bookRoute.js";
+import articleRouter from "./routes/articleRoute.js";
 
 // basic steup the server
 dotenv.config();
@@ -47,6 +48,7 @@ app.use("/admin", adminRoute);
 app.use("/api", filmingRoute);
 app.use("/api", shoppingRoute);
 app.use("/api", bookRouter);
+app.use("/api", articleRouter);
 
 // public route running the server
 app.get("/", (req, res) => {

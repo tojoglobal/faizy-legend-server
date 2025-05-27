@@ -5,6 +5,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { EventEmitter } from "events";
 import adminRoute from "./routes/adminRoute.js";
+import filmingRoute from "./routes/filmingRoute.js";
 
 // basic steup the server
 dotenv.config();
@@ -41,6 +42,7 @@ app.use(
 
 // here is the router setup
 app.use("/admin", adminRoute);
+app.use("/api", filmingRoute);
 
 // public route running the server
 app.get("/", (req, res) => {

@@ -7,6 +7,8 @@ import { EventEmitter } from "events";
 import adminRoute from "./routes/adminRoute.js";
 import filmingRoute from "./routes/filmingRoute.js";
 import shoppingRoute from "./routes/shoppingRoute.js";
+import modelingGalleryRoutes from "./routes/modelingGallery.routes.js";
+import ugcRoutes from "./routes/ugc.routes.js";
 
 // basic steup the server
 dotenv.config();
@@ -45,6 +47,8 @@ app.use(
 app.use("/admin", adminRoute);
 app.use("/api", filmingRoute);
 app.use("/api", shoppingRoute);
+app.use("/api/modeling-gallery", modelingGalleryRoutes);
+app.use("/api/ugc", ugcRoutes);
 
 // public route running the server
 app.get("/", (req, res) => {

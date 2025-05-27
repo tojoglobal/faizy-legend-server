@@ -22,3 +22,27 @@ CREATE TABLE shopping_products (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES shopping_categories(id) ON DELETE SET NULL
 );
+
+
+/* modeling_galleries data table  */
+CREATE TABLE modeling_galleries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    photographer VARCHAR(255),
+    thumbnail VARCHAR(255),
+    images JSON, -- stores array of image paths as JSON
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* ugc_videos */
+CREATE TABLE ugc_videos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    url VARCHAR(255) NOT NULL,
+    youtube_id VARCHAR(16) NOT NULL,
+    thumbnail VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

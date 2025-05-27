@@ -5,16 +5,12 @@ import {
   updateFilmingVideo,
   deleteFilmingVideo,
 } from "../controllers/filmingController.js";
-import { verifyAdmin } from "../middleware/verifyAdmin.js";
 
 const filmingRoute = express.Router();
 
-// Public routes
 filmingRoute.get("/filming", getFilmingVideos);
-
-// Admin-protected routes
-filmingRoute.post("/filming", verifyAdmin, addFilmingVideo);
-filmingRoute.put("/filming/:id", verifyAdmin, updateFilmingVideo);
-filmingRoute.delete("/filming/:id", verifyAdmin, deleteFilmingVideo);
+filmingRoute.post("/filming", addFilmingVideo);
+filmingRoute.put("/filming/:id", updateFilmingVideo);
+filmingRoute.delete("/filming/:id", deleteFilmingVideo);
 
 export default filmingRoute;

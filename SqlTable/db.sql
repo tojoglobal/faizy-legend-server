@@ -1,7 +1,6 @@
 CREATE TABLE filming_videos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
-  image_url VARCHAR(512) NOT NULL,
   youtube_id VARCHAR(100) NOT NULL,
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -7,6 +7,7 @@ import { EventEmitter } from "events";
 import adminRoute from "./routes/adminRoute.js";
 import filmingRoute from "./routes/filmingRoute.js";
 import shoppingRoute from "./routes/shoppingRoute.js";
+import bookRouter from "./routes/bookRoute.js";
 
 // basic steup the server
 dotenv.config();
@@ -45,6 +46,7 @@ app.use(
 app.use("/admin", adminRoute);
 app.use("/api", filmingRoute);
 app.use("/api", shoppingRoute);
+app.use("/api", bookRouter);
 
 // public route running the server
 app.get("/", (req, res) => {

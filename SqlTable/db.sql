@@ -22,3 +22,13 @@ CREATE TABLE shopping_products (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES shopping_categories(id) ON DELETE SET NULL
 );
+
+CREATE TABLE book_forms (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  image_url VARCHAR(512),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

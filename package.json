@@ -1,7 +1,7 @@
 {
   "name": "faizayserverside",
   "version": "1.0.1",
-  "main": "inedx.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",

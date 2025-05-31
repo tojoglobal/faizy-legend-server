@@ -2,7 +2,6 @@ import express from "express";
 import * as controller from "../controllers/ugc.controller.js";
 
 const router = express.Router();
-console.log("ugc route is hit ");
 
 // CREATE UGC
 router.post("/", controller.createUGC);

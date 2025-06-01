@@ -35,8 +35,10 @@ const allowedOrigins = [
   `http://localhost:${localhostPort2}`,
   `http://localhost:${localhostPort3}`,
   "https://demo.faizylegend.com",
-  "https://www.demo.faizylegend.com",
-  "http://demo.faizylegend.com/",
+  "http://demo.faizylegend.com",
+  "http://www.demo.faizylegend.com",
+  "https://faizylegend.com",
+  "https://www.faizylegend.com",
 ];
 
 app.use(

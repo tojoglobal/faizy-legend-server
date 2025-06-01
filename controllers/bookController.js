@@ -27,7 +27,7 @@ export const submitBookForm = async (req, res) => {
     // Send Email
     await sendEmail({
       from: email,
-      to: "swapnilahmedshishir2018@gmail.com",
+      to: "faizylegendx@gmail.com",
       subject: "📩 New Book Form Submission",
       html: `
         <div style="background: #f6f8fb; padding: 0; margin: 0; width: 100%; font-family: 'Segoe UI', Arial, sans-serif;">

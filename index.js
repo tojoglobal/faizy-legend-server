@@ -11,6 +11,7 @@ import modelingGalleryRoutes from "./routes/modelingGallery.routes.js";
 import ugcRoutes from "./routes/ugc.routes.js";
 import bookRouter from "./routes/bookRoute.js";
 import articleRouter from "./routes/articleRoute.js";
+import fanArtRouter from "./routes/fanArtRoute.js";
 
 // basic steup the server
 dotenv.config();
@@ -44,7 +45,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -58,6 +59,7 @@ app.use("/api/modeling-gallery", modelingGalleryRoutes);
 app.use("/api/ugc", ugcRoutes);
 app.use("/api", bookRouter);
 app.use("/api", articleRouter);
+app.use("/api", fanArtRouter);
 
 // public route running the server
 app.get("/", (req, res) => {

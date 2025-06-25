@@ -2,27 +2,98 @@ import db from "../Utils/db.js";
 import fs from "fs";
 import path from "path";
 
-// GET all fan art (with search and tab filters)
+// USER: Only returns approved=1
 export const getFanArt = async (req, res) => {
   try {
-    const { search = "", type } = req.query;
-    let sql = "SELECT * FROM fan_art WHERE 1";
+    const { search = "", type, page = 1, limit = 9 } = req.query;
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const pageSize = Math.max(1, parseInt(limit, 10) || 9);
+
+    // Only fetch approved=1 for user-facing route
+    let sqlBase = "FROM fan_art WHERE approved=1";
     const params = [];
     if (search) {
-      sql += " AND (user LIKE ? OR title LIKE ?)";
+      sqlBase += " AND (user LIKE ? OR title LIKE ?)";
       params.push(`%${search}%`, `%${search}%`);
     }
     if (type === "photos") {
-      sql += " AND JSON_LENGTH(images) > 0";
+      sqlBase += " AND JSON_LENGTH(images) > 0";
     }
     if (type === "videos") {
-      sql += " AND JSON_LENGTH(videos) > 0";
+      sqlBase += " AND JSON_LENGTH(videos) > 0";
     }
-    sql += " ORDER BY created_at DESC";
-    const [rows] = await db.query(sql, params);
-    res.json(rows);
+
+    // Count total
+    const [[{ count }]] = await db.query(
+      `SELECT COUNT(*) as count ${sqlBase}`,
+      params
+    );
+
+    // Paginated data
+    const sql = `SELECT * ${sqlBase} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    const paginatedParams = [
+      ...params,
+      Number(pageSize), // ensure numbers for LIMIT/OFFSET
+      Number((pageNum - 1) * pageSize),
+    ];
+    const [rows] = await db.query(sql, paginatedParams);
+
+    res.json({
+      total: count,
+      page: pageNum,
+      pageSize,
+      lastPage: Math.ceil(count / pageSize) || 1,
+      rows,
+    });
   } catch (e) {
     res.status(500).json({ error: "Failed to fetch fan art" });
+  }
+};
+
+// ADMIN: See ALL (no approved filter)
+export const getFanArtAdmin = async (req, res) => {
+  try {
+    const { search = "", type, page = 1, limit = 9 } = req.query;
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const pageSize = Math.max(1, parseInt(limit, 10) || 9);
+
+    let sqlBase = "FROM fan_art WHERE 1";
+    const params = [];
+    if (search) {
+      sqlBase += " AND (user LIKE ? OR title LIKE ?)";
+      params.push(`%${search}%`, `%${search}%`);
+    }
+    if (type === "photos") {
+      sqlBase += " AND JSON_LENGTH(images) > 0";
+    }
+    if (type === "videos") {
+      sqlBase += " AND JSON_LENGTH(videos) > 0";
+    }
+
+    // Count total
+    const [[{ count }]] = await db.query(
+      `SELECT COUNT(*) as count ${sqlBase}`,
+      params
+    );
+
+    // Paginated data
+    const sql = `SELECT * ${sqlBase} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    const paginatedParams = [
+      ...params,
+      Number(pageSize), // ensure numbers for LIMIT/OFFSET
+      Number((pageNum - 1) * pageSize),
+    ];
+    const [rows] = await db.query(sql, paginatedParams);
+
+    res.json({
+      total: count,
+      page: pageNum,
+      pageSize,
+      lastPage: Math.ceil(count / pageSize) || 1,
+      rows,
+    });
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch fan art (admin)" });
   }
 };
 

@@ -43,7 +43,7 @@ export const uploadFanArt = multer({
   storage,
   fileFilter,
   limits: {
-    files: 12, // 10 images + 2 videos max per upload (enforced in controller)
+    files: 12,
   },
 }).fields([
   { name: "images", maxCount: 10 },

@@ -2,72 +2,38 @@ import db from "../Utils/db.js";
 import fs from "fs";
 import path from "path";
 
-// USER: Only returns approved=1
+// USER: Only returns approved=1 (no pagination)
 export const getFanArt = async (req, res) => {
   try {
-    const { search = "", type, page = 1, limit = 9 } = req.query;
-    const pageNum = Math.max(1, parseInt(page, 10) || 1);
-    const pageSize = Math.max(1, parseInt(limit, 10) || 9);
-
-    // Only fetch approved=1 for user-facing route
+    const { search = "" } = req.query;
     let sqlBase = "FROM fan_art WHERE approved=1";
     const params = [];
     if (search) {
-      sqlBase += " AND (user LIKE ? OR title LIKE ?)";
-      params.push(`%${search}%`, `%${search}%`);
+      sqlBase += " AND (user LIKE ?)";
+      params.push(`%${search}%`);
     }
-    if (type === "photos") {
-      sqlBase += " AND JSON_LENGTH(images) > 0";
-    }
-    if (type === "videos") {
-      sqlBase += " AND JSON_LENGTH(videos) > 0";
-    }
-
-    // Count total
-    const [[{ count }]] = await db.query(
-      `SELECT COUNT(*) as count ${sqlBase}`,
+    const [rows] = await db.query(
+      `SELECT * ${sqlBase} ORDER BY created_at DESC`,
       params
     );
-
-    // Paginated data
-    const sql = `SELECT * ${sqlBase} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
-    const paginatedParams = [
-      ...params,
-      Number(pageSize), // ensure numbers for LIMIT/OFFSET
-      Number((pageNum - 1) * pageSize),
-    ];
-    const [rows] = await db.query(sql, paginatedParams);
-
-    res.json({
-      total: count,
-      page: pageNum,
-      pageSize,
-      lastPage: Math.ceil(count / pageSize) || 1,
-      rows,
-    });
+    res.json({ rows });
   } catch (e) {
     res.status(500).json({ error: "Failed to fetch fan art" });
   }
 };
 
-// ADMIN: See ALL (no approved filter)
+// ADMIN: See ALL (WITH pagination)
 export const getFanArtAdmin = async (req, res) => {
   try {
-    const { search = "", type, page = 1, limit = 9 } = req.query;
+    const { search = "", page = 1, limit = 9 } = req.query;
     const pageNum = Math.max(1, parseInt(page, 10) || 1);
     const pageSize = Math.max(1, parseInt(limit, 10) || 9);
 
     let sqlBase = "FROM fan_art WHERE 1";
     const params = [];
     if (search) {
-      sqlBase += " AND (user LIKE ? OR title LIKE ?)";
-      params.push(`%${search}%`, `%${search}%`);
-    }
-    if (type === "photos") {
-      sqlBase += " AND JSON_LENGTH(images) > 0";
-    }
-    if (type === "videos") {
-      sqlBase += " AND JSON_LENGTH(videos) > 0";
+      sqlBase += " AND (user LIKE ?)";
+      params.push(`%${search}%`);
     }
 
     // Count total
@@ -80,7 +46,7 @@ export const getFanArtAdmin = async (req, res) => {
     const sql = `SELECT * ${sqlBase} ORDER BY created_at DESC LIMIT ? OFFSET ?`;
     const paginatedParams = [
       ...params,
-      Number(pageSize), // ensure numbers for LIMIT/OFFSET
+      Number(pageSize),
       Number((pageNum - 1) * pageSize),
     ];
     const [rows] = await db.query(sql, paginatedParams);
@@ -97,12 +63,12 @@ export const getFanArtAdmin = async (req, res) => {
   }
 };
 
-// ADD fan art (multi-image/video upload, fields: user, title, tags)
+// ADD fan art (multi-image/video upload, fields: user only)
 export const addFanArt = async (req, res) => {
   try {
-    const { user, title, tags } = req.body;
-    if (!user || !title) {
-      return res.status(400).json({ error: "User and title are required." });
+    const { user } = req.body;
+    if (!user) {
+      return res.status(400).json({ error: "User is required." });
     }
     // Enforce limits
     const images = (req.files?.images || []).map(
@@ -111,9 +77,14 @@ export const addFanArt = async (req, res) => {
     const videos = (req.files?.videos || []).map(
       (f) => "/uploads/" + f.filename
     );
+    // Support vitiligoFace (single image)
+    const vitiligoFace = req.files?.vitiligoFace
+      ? ["/uploads/" + req.files.vitiligoFace[0].filename]
+      : [];
+
     if (images.length > 10 || videos.length > 2) {
       // Remove uploaded files if above limit
-      [...images, ...videos].forEach((f) =>
+      [...images, ...videos, ...vitiligoFace].forEach((f) =>
         fs.unlink(path.join(process.cwd(), f.replace(/^\//, "")), () => {})
       );
       return res
@@ -121,8 +92,13 @@ export const addFanArt = async (req, res) => {
         .json({ error: "Max 10 images and 2 videos allowed." });
     }
     await db.query(
-      "INSERT INTO fan_art (user, title, tags, images, videos) VALUES (?, ?, ?, ?, ?)",
-      [user, title, tags || "", JSON.stringify(images), JSON.stringify(videos)]
+      "INSERT INTO fan_art (user, images, videos, vitiligoFace) VALUES (?, ?, ?, ?)",
+      [
+        user,
+        JSON.stringify(images),
+        JSON.stringify(videos),
+        JSON.stringify(vitiligoFace),
+      ]
     );
     res.json({ message: "Fan art submitted! Awaiting admin approval." });
   } catch (e) {
@@ -150,12 +126,12 @@ export const rejectFanArt = async (req, res) => {
   }
 };
 
-// DELETE fan art (remove all images/videos)
+// DELETE fan art (remove all images/videos/faces)
 export const deleteFanArt = async (req, res) => {
   try {
     const { id } = req.params;
     const [[row]] = await db.query(
-      "SELECT images, videos FROM fan_art WHERE id=?",
+      "SELECT images, videos, vitiligoFace FROM fan_art WHERE id=?",
       [id]
     );
     // Remove files
@@ -168,6 +144,13 @@ export const deleteFanArt = async (req, res) => {
     }
     if (row?.videos) {
       for (const f of JSON.parse(row.videos || "[]")) {
+        if (f && f.startsWith("/uploads/")) {
+          fs.unlink(path.join(process.cwd(), f.replace(/^\//, "")), () => {});
+        }
+      }
+    }
+    if (row?.vitiligoFace) {
+      for (const f of JSON.parse(row.vitiligoFace || "[]")) {
         if (f && f.startsWith("/uploads/")) {
           fs.unlink(path.join(process.cwd(), f.replace(/^\//, "")), () => {});
         }

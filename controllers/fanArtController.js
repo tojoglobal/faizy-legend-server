@@ -63,10 +63,10 @@ export const getFanArtAdmin = async (req, res) => {
   }
 };
 
-// ADD fan art (multi-image/video upload, fields: user only)
+// ADD fan art (multi-image/video upload, fields: user, agreed)
 export const addFanArt = async (req, res) => {
   try {
-    const { user } = req.body;
+    const { user, agreed } = req.body;
     if (!user) {
       return res.status(400).json({ error: "User is required." });
     }
@@ -91,13 +91,15 @@ export const addFanArt = async (req, res) => {
         .status(400)
         .json({ error: "Max 10 images and 2 videos allowed." });
     }
+    // Insert agreed (can be 0 or 1, or null)
     await db.query(
-      "INSERT INTO fan_art (user, images, videos, vitiligoFace) VALUES (?, ?, ?, ?)",
+      "INSERT INTO fan_art (user, images, videos, vitiligoFace, agreed) VALUES (?, ?, ?, ?, ?)",
       [
         user,
         JSON.stringify(images),
         JSON.stringify(videos),
         JSON.stringify(vitiligoFace),
+        typeof agreed !== "undefined" ? Number(agreed) : null,
       ]
     );
     res.json({ message: "Fan art submitted! Awaiting admin approval." });

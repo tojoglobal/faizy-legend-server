@@ -66,7 +66,7 @@ export const getFanArtAdmin = async (req, res) => {
 // ADD fan art (multi-image/video upload, fields: user, agreed)
 export const addFanArt = async (req, res) => {
   try {
-    const { user, agreed } = req.body;
+    const { user } = req.body;
     if (!user) {
       return res.status(400).json({ error: "User is required." });
     }
@@ -93,15 +93,14 @@ export const addFanArt = async (req, res) => {
     }
     // Insert agreed (can be 0 or 1, or null)
     await db.query(
-      "INSERT INTO fan_art (user, images, videos, vitiligoFace, agreed) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO fan_art (user, images, videos, vitiligoFace) VALUES (?, ?, ?, ?)",
       [
         user,
         JSON.stringify(images),
         JSON.stringify(videos),
         JSON.stringify(vitiligoFace),
-        typeof agreed !== "undefined" ? Number(agreed) : null,
       ]
-    );
+    );    
     res.json({ message: "Fan art submitted! Awaiting admin approval." });
   } catch (e) {
     res.status(500).json({ error: "Failed to submit fan art" });

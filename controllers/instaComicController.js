@@ -4,7 +4,7 @@ export const getInstagramPosts = async (req, res) => {
   try {
     const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
     const userId = process.env.INSTAGRAM_USER_ID;
-
+    console.log(accessToken, userId);
     // Fetch latest posts (limit: 12)
     const response = await axios.get(
       `https://graph.instagram.com/${userId}/media?fields=id,caption,media_url,media_type,permalink,timestamp&limit=12&access_token=${accessToken}`

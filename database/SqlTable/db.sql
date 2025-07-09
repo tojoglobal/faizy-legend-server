@@ -62,3 +62,24 @@ CREATE TABLE articles (
   link VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE instagram_comics (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  instagram_post_id VARCHAR(255) UNIQUE NOT NULL,
+  media_url VARCHAR(255) NOT NULL,
+  caption TEXT,
+  timestamp DATETIME,
+  media_type VARCHAR(20), -- IMAGE, VIDEO, CAROUSEL_ALBUM
+  additional_media JSON DEFAULT '[]',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE faizy_comics (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  subtitle VARCHAR(255),
+  description TEXT,
+  follow_url TEXT,
+  images TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

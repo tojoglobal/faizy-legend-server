@@ -100,7 +100,7 @@ export const addFanArt = async (req, res) => {
         JSON.stringify(videos),
         JSON.stringify(vitiligoFace),
       ]
-    );    
+    );
     res.json({ message: "Fan art submitted! Awaiting admin approval." });
   } catch (e) {
     res.status(500).json({ error: "Failed to submit fan art" });

@@ -81,5 +81,6 @@ CREATE TABLE faizy_comics (
   description TEXT,
   follow_url TEXT,
   images TEXT,
+  shop_url VARCHAR(255);
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

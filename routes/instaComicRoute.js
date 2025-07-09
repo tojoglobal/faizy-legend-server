@@ -1,15 +1,7 @@
 import express from "express";
-import {
-  fetchInstagramPosts,
-  getInstagramComics,
-} from "../controllers/instaComicController";
+import { getInstagramPosts } from "../controllers/InstaComicController.js";
 
-const comicRoute = express.Router();
+const instaComicRoute = express.Router();
+instaComicRoute.get("/instagram-posts", getInstagramPosts);
 
-// Endpoint to trigger Instagram sync (can be protected or cron-called)
-comicRoute.get("/instagram-sync", fetchInstagramPosts);
-
-// Endpoint to get stored posts
-comicRoute.get("/comics", getInstagramComics);
-
-export default comicRoute;
+export default instaComicRoute;

@@ -17,7 +17,7 @@ export const getFaizyComics = async (req, res) => {
 // POST: Upload Faizy Comic (images + text)
 export const addFaizyComic = async (req, res) => {
   try {
-    const { title, subtitle, description, follow_url } = req.body;
+    const { title, subtitle, description, follow_url, shop_url } = req.body;
     const images = (req.files?.images || []).map(
       (f) => "/uploads/" + f.filename
     );
@@ -29,9 +29,16 @@ export const addFaizyComic = async (req, res) => {
     }
 
     await db.query(
-      `INSERT INTO faizy_comics (title, subtitle, description, follow_url, images)
-       VALUES (?, ?, ?, ?, ?)`,
-      [title, subtitle, description, follow_url, JSON.stringify(images)]
+      `INSERT INTO faizy_comics (title, subtitle, description, follow_url, shop_url, images)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        title,
+        subtitle,
+        description,
+        follow_url,
+        shop_url,
+        JSON.stringify(images),
+      ]
     );
 
     res.json({ message: "Comic uploaded successfully." });
@@ -43,7 +50,7 @@ export const addFaizyComic = async (req, res) => {
 export const updateFaizyComic = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, subtitle, description, follow_url } = req.body;
+    const { title, subtitle, description, follow_url, shop_url } = req.body;
 
     // Extract new images if uploaded
     const newImages = (req.files?.images || []).map(
@@ -74,8 +81,16 @@ export const updateFaizyComic = async (req, res) => {
 
     // Update comic record
     await db.query(
-      `UPDATE faizy_comics SET title=?, subtitle=?, description=?, follow_url=?, images=? WHERE id=?`,
-      [title, subtitle, description, follow_url, JSON.stringify(images), id]
+      `UPDATE faizy_comics SET title=?, subtitle=?, description=?, follow_url=?, shop_url=?, images=? WHERE id=?`,
+      [
+        title,
+        subtitle,
+        description,
+        follow_url,
+        shop_url,
+        JSON.stringify(images),
+        id,
+      ]
     );
 
     res.json({ message: "Comic updated successfully." });

@@ -13,6 +13,7 @@ import bookRouter from "./routes/bookRoute.js";
 import articleRouter from "./routes/articleRoute.js";
 import fanArtRouter from "./routes/fanArtRoute.js";
 import comicRoute from "./routes/comicRoute.js";
+import instaComicRoute from "./routes/instaComicRoute.js";
 
 // basic steup the server
 dotenv.config();
@@ -62,6 +63,7 @@ app.use("/api", bookRouter);
 app.use("/api", articleRouter);
 app.use("/api", fanArtRouter);
 app.use("/api", comicRoute);
+app.use("/api", instaComicRoute);
 
 // public route running the server
 app.get("/", (req, res) => {

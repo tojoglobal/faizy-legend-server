@@ -77,23 +77,44 @@ export const getAllIGComics = async (req, res) => {
 export const updateIGComic = async (req, res) => {
   try {
     const id = req.params.id;
-    const mediaFiles = req.files?.mediaFiles?.map((file) => file.filename) || [];
-    const existingComic = await db.query("SELECT * FROM ig_comics WHERE id = ?", [id]);
-    
-    if (!existingComic) {
+
+    const [rows] = await db.query("SELECT * FROM ig_comics WHERE id = ?", [id]);
+    if (rows.length === 0) {
       return res.status(404).json({ error: "Comic not found." });
     }
 
-    // Handle file updates (you might want to delete old files)
-    const updatedImages = mediaFiles.length > 0 
-      ? JSON.stringify(mediaFiles)
-      : existingComic.images;
+    const existing = rows[0];
+    const existingImages = existing.images ? JSON.parse(existing.images) : [];
+
+    // New uploads
+    const uploadedMedia =
+      req.files?.mediaFiles?.map((file) => file.filename) || [];
+
+    // Parse retained files from the form data
+    let retainedFiles = [];
+    try {
+      retainedFiles = JSON.parse(req.body.existingFiles || "[]");
+    } catch (e) {
+      console.error("Error parsing existingFiles:", e);
+      return res.status(400).json({ error: "Invalid existing files data." });
+    }
+
+    // Files to delete are those that exist in the database but not in retainedFiles
+    const filesToDelete = existingImages.filter(
+      (img) => !retainedFiles.includes(img)
+    );
+
+    // Delete the files that are no longer needed
+    filesToDelete.forEach((file) => safeUnlink(`uploads/${file}`));
+
+    // Final image list = retained files + newly uploaded files
+    const newImages = [...retainedFiles, ...uploadedMedia];
 
     await db.query("UPDATE ig_comics SET images = ? WHERE id = ?", [
-      updatedImages,
-      id
+      JSON.stringify(newImages),
+      id,
     ]);
-    
+
     res.json({ success: true });
   } catch (err) {
     console.error("Update error:", err);

@@ -72,3 +72,31 @@ export const getAllIGComics = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch comics." });
   }
 };
+
+// Update Comic
+export const updateIGComic = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const mediaFiles = req.files?.mediaFiles?.map((file) => file.filename) || [];
+    const existingComic = await db.query("SELECT * FROM ig_comics WHERE id = ?", [id]);
+    
+    if (!existingComic) {
+      return res.status(404).json({ error: "Comic not found." });
+    }
+
+    // Handle file updates (you might want to delete old files)
+    const updatedImages = mediaFiles.length > 0 
+      ? JSON.stringify(mediaFiles)
+      : existingComic.images;
+
+    await db.query("UPDATE ig_comics SET images = ? WHERE id = ?", [
+      updatedImages,
+      id
+    ]);
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ error: "Failed to update comic." });
+  }
+};

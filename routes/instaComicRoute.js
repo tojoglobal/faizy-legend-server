@@ -1,7 +1,21 @@
 import express from "express";
-import { getInstagramPosts } from "../controllers/InstaComicController.js";
+import {
+  createIGComic,
+  getAllIGComics,
+  deleteIGComic,
+} from "../controllers/instaComicController.js";
+import { upload } from "../middleware/UploadFile.js";
+const instaComicRouter = express.Router();
 
-const instaComicRoute = express.Router();
-instaComicRoute.get("/instagram-posts", getInstagramPosts);
+instaComicRouter.post(
+  "/admin/ig-comics",
+  upload.fields([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "images", maxCount: 40 },
+  ]),
+  createIGComic
+);
+instaComicRouter.get("/admin/ig-comics", getAllIGComics);
+instaComicRouter.delete("/admin/ig-comics/:id", deleteIGComic);
 
-export default instaComicRoute;
+export default instaComicRouter;

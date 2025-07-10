@@ -1,21 +1,54 @@
-import axios from "axios";
+import fs from "fs";
+import path from "path";
+import db from "../Utils/db.js";
 
-export const getInstagramPosts = async (req, res) => {
-  try {
-    const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
-    const userId = process.env.INSTAGRAM_USER_ID;
-    console.log(accessToken, userId);
-    // Fetch latest posts (limit: 12)
-    const response = await axios.get(
-      `https://graph.instagram.com/${userId}/media?fields=id,caption,media_url,media_type,permalink,timestamp&limit=12&access_token=${accessToken}`
-    );
+// Fix createIGComic
+export const createIGComic = async (req, res) => {
+  const thumbnail = req.files?.thumbnail?.[0]?.filename;
+  const images = req.files?.images?.map((file) => file.filename);
 
-    res.json({ success: true, posts: response.data.data });
-  } catch (error) {
-    console.error(
-      "Instagram API Error:",
-      error.response?.data || error.message
-    );
-    res.status(500).json({ error: "Failed to fetch Instagram posts." });
+  if (!thumbnail || !images || images.length === 0) {
+    return res.status(400).json({ error: "Thumbnail and images are required." });
   }
+
+  try {
+    const [result] = await db.query(
+      "INSERT INTO ig_comics (thumbnail, images) VALUES (?, ?)",
+      [thumbnail, JSON.stringify(images)]
+    );
+    res.json({ success: true, insertedId: result.insertId });
+  } catch (err) {
+    console.error("Insert Error:", err);
+    res.status(500).json({ error: "Failed to insert comic." });
+  }
+};
+
+// Fix getAllIGComics
+export const getAllIGComics = async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM ig_comics ORDER BY id DESC");
+    res.json(results);
+  } catch (err) {
+    console.error("Fetch Error:", err);
+    res.status(500).json({ error: "Failed to fetch comics." });
+  }
+};
+
+export const deleteIGComic = (req, res) => {
+  const { id } = req.params;
+  db.query("SELECT * FROM ig_comics WHERE id = ?", [id], (err, rows) => {
+    if (err || rows.length === 0)
+      return res.status(404).json({ error: "Comic not found." });
+
+    const comic = rows[0];
+    const filesToDelete = [comic.thumbnail, ...JSON.parse(comic.images)];
+
+    filesToDelete.forEach((f) => fs.unlink(path.join("uploads", f), () => {}));
+
+    db.query("DELETE FROM ig_comics WHERE id = ?", [id], (err) => {
+      if (err)
+        return res.status(500).json({ error: "Failed to delete comic." });
+      res.json({ success: true });
+    });
+  });
 };

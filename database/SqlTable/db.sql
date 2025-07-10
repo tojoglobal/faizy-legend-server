@@ -63,17 +63,6 @@ CREATE TABLE articles (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE instagram_comics (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  instagram_post_id VARCHAR(255) UNIQUE NOT NULL,
-  media_url VARCHAR(255) NOT NULL,
-  caption TEXT,
-  timestamp DATETIME,
-  media_type VARCHAR(20), -- IMAGE, VIDEO, CAROUSEL_ALBUM
-  additional_media JSON DEFAULT '[]',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE faizy_comics (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
@@ -82,5 +71,12 @@ CREATE TABLE faizy_comics (
   follow_url TEXT,
   images TEXT,
   shop_url VARCHAR(255);
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ig_comics (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  thumbnail VARCHAR(255) NOT NULL,
+  images JSON NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
